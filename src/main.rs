@@ -11,6 +11,15 @@ struct Data {}
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
+pub fn safe_exit(code: i32) -> ! {
+    use std::io::Write;
+
+    let _ = std::io::stdout().lock().flush();
+    let _ = std::io::stderr().lock().flush();
+
+    std::process::exit(code)
+}
+
 /// none
 #[poise::command(slash_command, prefix_command)]
 async fn none(_ctx: Context<'_>) -> Result<(), Error> {
@@ -36,7 +45,8 @@ async fn main() -> Result<(), clap::Error> {
                 )
                 .await?;
 
-                Ok(Data {})
+                println!("Removed commands successfully!");
+                safe_exit(0);
             })
         });
 
