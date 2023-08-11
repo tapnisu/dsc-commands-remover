@@ -38,22 +38,24 @@ async fn main() -> Result<(), clap::Error> {
         })
         .token(cli.token)
         .intents(serenity::GatewayIntents::non_privileged())
-        .setup(|ctx, _ready, _framework| {
+        .setup(move |ctx, _ready, _framework| {
             Box::pin(async move {
-                if !Confirm::new()
-                    .with_prompt("Do you want to continue?")
-                    .interact()?
+                if cli.yes
+                    || Confirm::new()
+                        .with_prompt(format!(
+                            "Do you want to remove all of your commands for {}?",
+                            _ready.user.tag()
+                        ))
+                        .interact()?
                 {
-                    safe_exit(0);
+                    poise::builtins::register_globally(
+                        ctx,
+                        vec![].as_slice() as &[Command<Context<'static>, Error>],
+                    )
+                    .await?;
+
+                    println!("Removed commands successfully!");
                 }
-
-                poise::builtins::register_globally(
-                    ctx,
-                    vec![].as_slice() as &[Command<Context<'static>, Error>],
-                )
-                .await?;
-
-                println!("Removed commands successfully!");
 
                 safe_exit(0);
             })
