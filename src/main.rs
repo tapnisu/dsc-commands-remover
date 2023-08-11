@@ -2,6 +2,7 @@ pub mod cli;
 
 use clap::{error::ErrorKind, CommandFactory, Parser};
 use cli::Cli;
+use dialoguer::Confirm;
 use poise::{
     serenity_prelude::{self as serenity},
     Command,
@@ -39,6 +40,13 @@ async fn main() -> Result<(), clap::Error> {
         .intents(serenity::GatewayIntents::non_privileged())
         .setup(|ctx, _ready, _framework| {
             Box::pin(async move {
+                if !Confirm::new()
+                    .with_prompt("Do you want to continue?")
+                    .interact()?
+                {
+                    safe_exit(0);
+                }
+
                 poise::builtins::register_globally(
                     ctx,
                     vec![].as_slice() as &[Command<Context<'static>, Error>],
@@ -46,6 +54,7 @@ async fn main() -> Result<(), clap::Error> {
                 .await?;
 
                 println!("Removed commands successfully!");
+
                 safe_exit(0);
             })
         });
