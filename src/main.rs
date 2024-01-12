@@ -36,8 +36,6 @@ async fn main() -> Result<(), clap::Error> {
             commands: vec![none()],
             ..Default::default()
         })
-        .token(cli.token)
-        .intents(serenity::GatewayIntents::non_privileged())
         .setup(move |ctx, _ready, _framework| {
             Box::pin(async move {
                 if cli.yes
@@ -59,11 +57,15 @@ async fn main() -> Result<(), clap::Error> {
 
                 safe_exit(0);
             })
-        });
+        })
+        .build();
 
-    let result = framework.run().await;
+    let client =
+        serenity::ClientBuilder::new(cli.token, serenity::GatewayIntents::non_privileged())
+            .framework(framework)
+            .await;
 
-    match result {
+    match client.unwrap().start().await {
         Ok(_) => (),
         Err(err) => Cli::command().error(ErrorKind::InvalidValue, err).exit(),
     }
