@@ -12,6 +12,7 @@ struct Data {}
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
+/// Terminates the program with the specified exit code
 pub fn safe_exit(code: i32) -> ! {
     use std::io::Write;
 
@@ -21,7 +22,7 @@ pub fn safe_exit(code: i32) -> ! {
     std::process::exit(code)
 }
 
-/// none
+/// Just an empty command
 #[poise::command(slash_command, prefix_command)]
 async fn none(_ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
