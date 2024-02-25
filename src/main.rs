@@ -23,6 +23,8 @@ fn main() -> Result<(), clap::Error> {
         cmd.error(ErrorKind::InvalidValue, err).exit();
     }
 
+    println!("Removed commands successfully!");
+
     Ok(())
 }
 
@@ -38,11 +40,13 @@ fn remove_commands(application_id: &str, bot_token: &str) -> Result<(), reqwest:
         application_id
     );
 
-    client
+    let res = client
         .put(url)
         .header(AUTHORIZATION, format!("Bot {}", bot_token))
         .json(EMPTY_JSON_ARRAY)
         .send()?;
+
+    res.error_for_status()?;
 
     Ok(())
 }
