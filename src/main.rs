@@ -3,73 +3,46 @@ pub mod cli;
 use clap::{error::ErrorKind, CommandFactory, Parser};
 use cli::Cli;
 use dialoguer::Confirm;
-use poise::{
-    serenity_prelude::{self as serenity},
-    Command,
-};
+use reqwest::{blocking::Client, header::AUTHORIZATION};
+use std::process;
 
-struct Data {}
-type Error = Box<dyn std::error::Error + Send + Sync>;
-type Context<'a> = poise::Context<'a, Data, Error>;
+fn main() -> Result<(), clap::Error> {
+    let cli = Cli::parse();
+    let mut cmd = Cli::command();
 
-/// Terminates the program with the specified exit code
-pub fn safe_exit(code: i32) -> ! {
-    use std::io::Write;
+    if !cli.yes
+        && !Confirm::new()
+            .with_prompt("Do you want to remove all of your commands?")
+            .interact()
+            .unwrap()
+    {
+        process::exit(1);
+    }
 
-    let _ = std::io::stdout().lock().flush();
-    let _ = std::io::stderr().lock().flush();
+    if let Err(err) = remove_commands(&cli.application_id, &cli.bot_token) {
+        cmd.error(ErrorKind::InvalidValue, err).exit();
+    }
 
-    std::process::exit(code)
-}
-
-/// Just an empty command
-#[poise::command(slash_command, prefix_command)]
-async fn none(_ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[tokio::main]
-async fn main() -> Result<(), clap::Error> {
-    let cli = Cli::parse();
+/// Just a workaround
+const EMPTY_JSON_ARRAY: &serde_json::Value = &serde_json::json!([]);
 
-    let framework = poise::Framework::builder()
-        .options(poise::FrameworkOptions {
-            commands: vec![none()],
-            ..Default::default()
-        })
-        .setup(move |ctx, _ready, _framework| {
-            Box::pin(async move {
-                if cli.yes
-                    || Confirm::new()
-                        .with_prompt(format!(
-                            "Do you want to remove all of your commands for {}?",
-                            _ready.user.tag()
-                        ))
-                        .interact()?
-                {
-                    poise::builtins::register_globally(
-                        ctx,
-                        vec![].as_slice() as &[Command<Context<'static>, Error>],
-                    )
-                    .await?;
+/// Pushes `[]` as commands to Discord's API route
+fn remove_commands(application_id: &str, bot_token: &str) -> Result<(), reqwest::Error> {
+    let client = Client::new();
 
-                    println!("Removed commands successfully!");
-                }
+    let url = format!(
+        "https://discord.com/api/v10/applications/{}/commands",
+        application_id
+    );
 
-                safe_exit(0);
-            })
-        })
-        .build();
-
-    let client =
-        serenity::ClientBuilder::new(cli.token, serenity::GatewayIntents::non_privileged())
-            .framework(framework)
-            .await;
-
-    match client.unwrap().start().await {
-        Ok(_) => (),
-        Err(err) => Cli::command().error(ErrorKind::InvalidValue, err).exit(),
-    }
+    client
+        .put(url)
+        .header(AUTHORIZATION, format!("Bot {}", bot_token))
+        .json(EMPTY_JSON_ARRAY)
+        .send()?;
 
     Ok(())
 }
