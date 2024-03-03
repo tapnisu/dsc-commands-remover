@@ -3,7 +3,7 @@ pub mod cli;
 use clap::{error::ErrorKind, CommandFactory, Parser};
 use cli::Cli;
 use dialoguer::Confirm;
-use reqwest::{blocking::Client, header::AUTHORIZATION};
+use dsc_commands_remover::remove_commands;
 use std::process;
 
 fn main() -> Result<(), clap::Error> {
@@ -24,29 +24,6 @@ fn main() -> Result<(), clap::Error> {
     }
 
     println!("Removed commands successfully!");
-
-    Ok(())
-}
-
-/// Just a workaround
-const EMPTY_JSON_ARRAY: &serde_json::Value = &serde_json::json!([]);
-
-/// Pushes `[]` as commands to Discord's API route
-fn remove_commands(application_id: &str, bot_token: &str) -> Result<(), reqwest::Error> {
-    let client = Client::new();
-
-    let url = format!(
-        "https://discord.com/api/v10/applications/{}/commands",
-        application_id
-    );
-
-    let res = client
-        .put(url)
-        .header(AUTHORIZATION, format!("Bot {}", bot_token))
-        .json(EMPTY_JSON_ARRAY)
-        .send()?;
-
-    res.error_for_status()?;
 
     Ok(())
 }
