@@ -6,7 +6,8 @@ use dialoguer::Confirm;
 use dsc_commands_remover::remove_commands;
 use std::process;
 
-fn main() -> Result<(), clap::Error> {
+#[tokio::main]
+async fn main() -> Result<(), clap::Error> {
     let cli = Cli::parse();
     let mut cmd = Cli::command();
 
@@ -19,7 +20,7 @@ fn main() -> Result<(), clap::Error> {
         process::exit(1);
     }
 
-    if let Err(err) = remove_commands(&cli.application_id, &cli.bot_token) {
+    if let Err(err) = remove_commands(&cli.application_id, &cli.bot_token).await {
         cmd.error(ErrorKind::InvalidValue, err).exit();
     }
 

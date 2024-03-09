@@ -1,10 +1,10 @@
-use reqwest::{blocking::Client, header::AUTHORIZATION};
+use reqwest::{header::AUTHORIZATION, Client};
 
 /// Just an empty serde_json array
 pub const EMPTY_JSON_ARRAY: &serde_json::Value = &serde_json::json!([]);
 
 /// Pushes `[]` as commands to Discord's API route
-pub fn remove_commands(application_id: &str, bot_token: &str) -> Result<(), reqwest::Error> {
+pub async fn remove_commands(application_id: &str, bot_token: &str) -> Result<(), reqwest::Error> {
     let client = Client::new();
 
     let url = format!(
@@ -16,7 +16,8 @@ pub fn remove_commands(application_id: &str, bot_token: &str) -> Result<(), reqw
         .put(url)
         .header(AUTHORIZATION, format!("Bot {}", bot_token))
         .json(EMPTY_JSON_ARRAY)
-        .send()?;
+        .send()
+        .await?;
 
     res.error_for_status()?;
 
