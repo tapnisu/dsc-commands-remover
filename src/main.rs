@@ -7,7 +7,7 @@ use dsc_commands_remover::remove_commands;
 use std::process;
 
 #[tokio::main]
-async fn main() -> Result<(), clap::Error> {
+async fn main() {
     let cli = Cli::parse();
     let mut cmd = Cli::command();
 
@@ -25,6 +25,4 @@ async fn main() -> Result<(), clap::Error> {
     }
 
     println!("Removed commands successfully!");
-
-    Ok(())
 }
