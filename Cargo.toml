@@ -4,14 +4,18 @@ version = "0.2.0"
 edition = "2021"
 readme = "README.md"
 authors = ["Aleksei Rybin <0xalekseirybin@gmail.com>"]
-repository = "https://github.com/tapris-bot/dsc-commands-remover/"
 description = "CLI tool to unregister all slash commands for a discord bot"
-keywords = ["terminal", "cli"]
-categories = ["command-line-utilities"]
 license = "MIT"
 
 # Don't forget to update `.github/workflows/test.yml`
 rust-version = "1.74"
+
+documentation = "https://docs.rs/dsc-commands-remover"
+repository = "https://github.com/tapnisu/dsc-commands-remover"
+homepage = "https://github.com/tapnisu/dsc-commands-remover"
+keywords = ["terminal", "cli"]
+categories = ["command-line-utilities"]
+exclude = [".github/*"]
 
 [dependencies]
 clap = { version = "4.3", features = ["derive"] }
