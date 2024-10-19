@@ -11,7 +11,11 @@ pub struct Cli {
     #[clap(short, long)]
     pub application_id: String,
 
-    /// Remove all commands without confirmation
+    /// Optional. Only removes guild commands. When omitted, only removes global commands.
+    #[clap(short, long)]
+    pub guild_id: Option<String>,
+
+    /// Remove commands without confirmation
     #[clap(short, long, action)]
     pub yes: bool,
 }
