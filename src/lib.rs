@@ -7,13 +7,13 @@ pub const EMPTY_JSON_ARRAY: &serde_json::Value = &serde_json::json!([]);
 pub async fn remove_commands(application_id: &str, bot_token: &str, guild_id: &Option<String>) -> Result<(), reqwest::Error> {
     let url;
 
-    if guild_id.is_some() {
+    if guild_id.is_some() { // Only remove persistent commands for this guild
         url = format!(
             "https://discord.com/api/v10/applications/{}/guilds/{}/commands",
             application_id,
             guild_id.as_ref().unwrap(),
         );
-    }else{
+    }else{ // Only remove global commands
         url = format!(
             "https://discord.com/api/v10/applications/{}/commands",
             application_id
