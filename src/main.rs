@@ -11,18 +11,12 @@ async fn main() {
     let cli = Cli::parse();
     let mut cmd = Cli::command();
 
-    let prompt;
-    match cli.guild_id {
-        Some(_) => {prompt = "Do you want to remove all of your guild commands?";}
-        None => {prompt = "Do you want to remove all of your global commands?";}
-    }
+    let prompt = match cli.guild_id {
+        Some(_) => "Do you want to remove all of your guild commands?",
+        None => "Do you want to remove all of your global commands?",
+    };
 
-    if !cli.yes
-        && !Confirm::new()
-            .with_prompt(prompt)
-            .interact()
-            .unwrap()
-    {
+    if !cli.yes && !Confirm::new().with_prompt(prompt).interact().unwrap() {
         process::exit(1);
     }
 
@@ -30,8 +24,10 @@ async fn main() {
         cmd.error(ErrorKind::InvalidValue, err).exit();
     }
 
-    match cli.guild_id {
-        Some(_) => {println!("Removed guild commands successfully!");}
-        None => {println!("Removed global commands successfully!");}
-    }
+    let success_message = match cli.guild_id {
+        Some(_) => "Removed guild commands successfully!",
+        None => "Removed global commands successfully!",
+    };
+
+    println!("{}", success_message);
 }
