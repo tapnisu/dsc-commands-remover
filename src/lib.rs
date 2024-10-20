@@ -4,18 +4,27 @@ use reqwest::{header::AUTHORIZATION, Client};
 pub const EMPTY_JSON_ARRAY: &serde_json::Value = &serde_json::json!([]);
 
 /// Pushes `[]` as commands to Discord's API route
-pub async fn remove_commands(application_id: &str, bot_token: &str, guild_id: &Option<String>) -> Result<(), reqwest::Error> {
-    let url;
-
-    match guild_id {
-        Some(guild_id) => { // Only remove persistent commands for this guild
-            url = format!("https://discord.com/api/v10/applications/{}/guilds/{}/commands",
-                          application_id, guild_id, );
+pub async fn remove_commands(
+    application_id: &str,
+    bot_token: &str,
+    guild_id: &Option<String>,
+) -> Result<(), reqwest::Error> {
+    let url = match guild_id {
+        Some(guild_id) => {
+            // Only remove persistent commands for this guild
+            format!(
+                "https://discord.com/api/v10/applications/{}/guilds/{}/commands",
+                application_id, guild_id,
+            )
         }
-        None => { // Only remove global commands
-            url = format!("https://discord.com/api/v10/applications/{}/commands", application_id);
+        None => {
+            // Only remove global commands
+            format!(
+                "https://discord.com/api/v10/applications/{}/commands",
+                application_id
+            )
         }
-    }
+    };
 
     call_command_api(&url, bot_token).await
 }
