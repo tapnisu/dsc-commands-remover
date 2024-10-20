@@ -12,10 +12,9 @@ async fn main() {
     let mut cmd = Cli::command();
 
     let prompt;
-    if cli.guild_id.is_some(){
-        prompt = "Do you want to remove all of your guild commands?";
-    }else{
-        prompt = "Do you want to remove all of your global commands?";
+    match cli.guild_id {
+        Some(_) => {prompt = "Do you want to remove all of your guild commands?";}
+        None => {prompt = "Do you want to remove all of your global commands?";}
     }
 
     if !cli.yes
@@ -31,10 +30,8 @@ async fn main() {
         cmd.error(ErrorKind::InvalidValue, err).exit();
     }
 
-    if cli.guild_id.is_some(){
-        println!("Removed guild commands successfully!");
-    }else{
-        println!("Removed global commands successfully!");
+    match cli.guild_id {
+        Some(_) => {println!("Removed guild commands successfully!");}
+        None => {println!("Removed global commands successfully!");}
     }
-
 }
