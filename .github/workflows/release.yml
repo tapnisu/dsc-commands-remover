@@ -35,7 +35,7 @@ jobs:
 
       - name: Update system packages
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get upgrade -y && sudo apt install libssl-dev
+        run: sudo dpkg --add-architecture arm64 && sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install libssl-dev:arm64 -y
 
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
